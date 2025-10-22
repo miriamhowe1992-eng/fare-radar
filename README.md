@@ -11,6 +11,8 @@ modern CSS and a sprinkle of vanilla JavaScript.
 - Search form that filters a sample dataset of UK-departure flights priced in
   GBP and loaded from JSON
 - Dynamic fare cards with filters for airline, number of stops and sort order
+- Real-time price refresh simulation that rechecks fares on every search and
+  itemises the FareRadar service fee before checkout
 - Mock booking and share interactions to demonstrate the on-site checkout flow
 - Marketing content (features, partners, testimonials, FAQ) tailored to a travel
   audience

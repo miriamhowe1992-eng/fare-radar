@@ -172,6 +172,16 @@ a:focus {
   gap: 1rem;
 }
 
+.deal-card .pricing-breakdown {
+  display: grid;
+  justify-items: end;
+  gap: 0.25rem;
+}
+
+.deal-card .pricing-breakdown .price {
+  font-size: 1.5rem;
+}
+
 .deal-card strong {
   font-size: 1.1rem;
 }
@@ -284,6 +294,16 @@ a:focus {
   color: var(--muted);
   font-size: 0.95rem;
   margin: 0;
+}
+
+.pricing-breakdown {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.pricing-breakdown .total {
+  color: var(--brand);
+  font-weight: 600;
 }
 
 .result-actions {

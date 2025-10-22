@@ -1,3 +1,9 @@
+const PRICING_CONFIG = {
+  liveVariance: 0.04, // ±4% to simulate market refresh when we search
+  feeRate: 0.08, // 8% commission on top of the refreshed fare
+  minimumFee: 8, // GBP
+};
+
 const state = {
   flights: [],
   currentResults: [],
@@ -32,22 +38,29 @@ async function loadFlights() {
 }
 
 function populateDeals(flights) {
-  const deals = [...flights]
-    .sort((a, b) => a.price - b.price)
+  const refreshedDeals = attachLivePricing([...flights])
+    .sort((a, b) => a.livePrice - b.livePrice)
     .slice(0, 3);
 
-  elements.dealList.innerHTML = deals
+  elements.dealList.innerHTML = refreshedDeals
     .map((deal) => {
       const route = `${deal.origin} → ${deal.destination}`;
-      const formattedPrice = formatCurrency(deal.price, deal.currency);
+      const refreshedPrice = formatCurrency(deal.livePrice, deal.currency);
+      const totalWithFee = formatCurrency(deal.totalWithFee, deal.currency);
       return `<li class="deal-card">
           <div>
             <strong>${route}</strong>
             <p class="result-meta">${deal.airline} &bull; ${formatDuration(
         deal.durationMinutes
       )}</p>
+            <p class="result-meta">Checked ${formatCheckedTimestamp(
+        deal.lastChecked
+      )}</p>
           </div>
-          <span class="price">${formattedPrice}</span>
+          <div class="pricing-breakdown">
+            <span class="price">${refreshedPrice}</span>
+            <p class="result-meta">With fee: ${totalWithFee}</p>
+          </div>
         </li>`;
     })
     .join("");
@@ -62,7 +75,7 @@ function populateAirlineFilter(flights) {
 }
 
 function formatCurrency(amount, currency) {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("en-GB", {
     style: "currency",
     currency,
     maximumFractionDigits: 0,
@@ -76,11 +89,68 @@ function formatDuration(minutes) {
 }
 
 function formatTime(date) {
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat("en-GB", {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
   }).format(new Date(date));
+}
+
+function formatCheckedTimestamp(isoString) {
+  if (!isoString) {
+    return "just now";
+  }
+
+  const date = new Date(isoString);
+  const today = new Date();
+  const sameDay =
+    date.getFullYear() === today.getFullYear() &&
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate();
+
+  const timePart = new Intl.DateTimeFormat("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+
+  if (sameDay) {
+    return `today at ${timePart}`;
+  }
+
+  const datePart = new Intl.DateTimeFormat("en-GB", {
+    month: "short",
+    day: "numeric",
+  }).format(date);
+
+  return `${datePart} at ${timePart}`;
+}
+
+function applyLiveVariance(basePrice) {
+  const variance = PRICING_CONFIG.liveVariance;
+  const min = basePrice * (1 - variance);
+  const max = basePrice * (1 + variance);
+  const adjusted = basePrice + (Math.random() * 2 - 1) * variance * basePrice;
+  return Math.round(Math.min(Math.max(adjusted, min), max));
+}
+
+function calculateFee(amount) {
+  const fee = amount * PRICING_CONFIG.feeRate;
+  return Math.max(Math.round(fee), PRICING_CONFIG.minimumFee);
+}
+
+function attachLivePricing(flights) {
+  const checkedAt = new Date().toISOString();
+  return flights.map((flight) => {
+    const livePrice = applyLiveVariance(flight.price);
+    const fareRadarFee = calculateFee(livePrice);
+    return {
+      ...flight,
+      livePrice,
+      fareRadarFee,
+      totalWithFee: livePrice + fareRadarFee,
+      lastChecked: checkedAt,
+    };
+  });
 }
 
 function handleSearch(event) {
@@ -112,7 +182,7 @@ function handleSearch(event) {
   });
 
   state.searchParams = { origin, destination, departDate, returnDate };
-  state.currentResults = matchingFlights;
+  state.currentResults = attachLivePricing(matchingFlights);
   applyFilters();
 }
 
@@ -143,7 +213,7 @@ function applyFilters() {
         return new Date(a.depart) - new Date(b.depart);
       case "price":
       default:
-        return a.price - b.price;
+        return (a.livePrice ?? a.price) - (b.livePrice ?? b.price);
     }
   });
 
@@ -168,7 +238,16 @@ function renderResults(results) {
 
   elements.resultsList.innerHTML = results
     .map((flight) => {
-      const price = formatCurrency(flight.price, flight.currency);
+      const basePrice = flight.livePrice ?? flight.price;
+      const price = formatCurrency(basePrice, flight.currency);
+      const fee = formatCurrency(
+        flight.fareRadarFee ?? calculateFee(basePrice),
+        flight.currency
+      );
+      const total = formatCurrency(
+        flight.totalWithFee ?? basePrice + calculateFee(basePrice),
+        flight.currency
+      );
       const depart = formatTime(flight.depart);
       const arrive = formatTime(flight.arrive);
       const stopsLabel = flight.stops === 0 ? "Nonstop" : `${flight.stops} stop${
@@ -180,10 +259,17 @@ function renderResults(results) {
             <h4>${origin} &rarr; ${destination}</h4>
             <p class="result-meta">${depart} &ndash; ${arrive} &bull; ${stopsLabel}</p>
             <p class="result-meta">Operated by ${flight.partner}</p>
+            <p class="result-meta">Price checked ${formatCheckedTimestamp(
+        flight.lastChecked
+      )}</p>
           </div>
-          <div>
+          <div class="pricing-breakdown">
             <div class="price">${price}</div>
-            <p class="result-meta">${formatDuration(flight.durationMinutes)} total</p>
+            <p class="result-meta">FareRadar fee ${fee}</p>
+            <p class="result-meta total">Total today ${total}</p>
+            <p class="result-meta">${formatDuration(
+        flight.durationMinutes
+      )} total travel</p>
           </div>
           <div class="result-actions">
             <button class="primary" type="button" data-flight="${flight.id}">Book now</button>
@@ -199,16 +285,16 @@ function handleResultsClick(event) {
   if (!button) return;
 
   const flightId = button.dataset.flight;
-  const flight = state.flights.find((item) => item.id === flightId);
+  const flight = state.currentResults.find((item) => item.id === flightId);
   if (!flight) return;
 
   if (button.dataset.action === "share") {
     navigator.clipboard
       ?.writeText(
         `Check out this fare from ${flight.origin} to ${flight.destination} for ${formatCurrency(
-          flight.price,
+          flight.totalWithFee ?? flight.livePrice,
           flight.currency
-        )} on FareRadar!`
+        )} on FareRadar (includes our service fee)!`
       )
       .then(() => {
         button.textContent = "Copied!";
@@ -218,7 +304,16 @@ function handleResultsClick(event) {
     return;
   }
 
-  const message = `Start booking ${flight.origin} → ${flight.destination} with ${flight.partner}.\nOur partners complete the reservation and share commission automatically.`;
+  const basePrice = flight.livePrice ?? flight.price;
+  const fee = flight.fareRadarFee ?? calculateFee(basePrice);
+  const total = flight.totalWithFee ?? basePrice + fee;
+  const message = `You're moments away from booking ${flight.origin} → ${flight.destination} with ${flight.partner}.\n\nFare: ${formatCurrency(
+    basePrice,
+    flight.currency
+  )}\nFareRadar service fee: ${formatCurrency(fee, flight.currency)}\nTotal charged today: ${formatCurrency(
+    total,
+    flight.currency
+  )}\n\nWe'll redirect you to ${flight.partner} to finish checkout with the total shown above.`;
   alert(message);
 }
 
