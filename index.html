@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FareRadar &bull; Find the Cheapest Flights</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="container">
+        <div class="brand">FareRadar</div>
+        <nav aria-label="Primary">
+          <ul>
+            <li><a href="#search">Search</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#partners">Partners</a></li>
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+        </nav>
+        <a class="cta" href="#search">Start Searching</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container">
+          <div class="hero-content">
+            <h1>Find the cheapest flights in seconds.</h1>
+            <p>
+              FareRadar scans dozens of airlines and booking partners in real
+              time, so you never miss out on the lowest airfare. Search, compare
+              and book &mdash; all without leaving our site.
+            </p>
+            <div class="hero-actions">
+              <a class="cta" href="#search">Search flights</a>
+              <a class="secondary" href="#partners">Become a partner</a>
+            </div>
+            <dl class="hero-stats" aria-label="Platform statistics">
+              <div>
+                <dt>150+</dt>
+                <dd>Global airlines</dd>
+              </div>
+              <div>
+                <dt>45</dt>
+                <dd>OTA partners</dd>
+              </div>
+              <div>
+                <dt>1.2M</dt>
+                <dd>Monthly searches</dd>
+              </div>
+            </dl>
+          </div>
+          <div class="hero-card" role="presentation">
+            <div class="card-header">Live sample deals</div>
+            <ul class="card-list" id="deal-list" aria-live="polite"></ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="search" class="search">
+        <div class="container">
+          <div class="section-heading">
+            <h2>Search flights</h2>
+            <p>Compare fares from airlines, low-cost carriers and OTAs.</p>
+          </div>
+          <form id="search-form" class="search-form" novalidate>
+            <div class="field-group">
+              <label for="origin">Origin</label>
+              <input
+                id="origin"
+                name="origin"
+                type="text"
+                placeholder="E.g. JFK"
+                maxlength="3"
+                required
+                aria-describedby="origin-hint"
+              />
+              <small id="origin-hint">Enter airport code</small>
+            </div>
+            <div class="field-group">
+              <label for="destination">Destination</label>
+              <input
+                id="destination"
+                name="destination"
+                type="text"
+                placeholder="E.g. LHR"
+                maxlength="3"
+                required
+                aria-describedby="destination-hint"
+              />
+              <small id="destination-hint">Enter airport code</small>
+            </div>
+            <div class="field-group">
+              <label for="depart-date">Depart</label>
+              <input id="depart-date" name="depart" type="date" required />
+            </div>
+            <div class="field-group">
+              <label for="return-date">Return</label>
+              <input id="return-date" name="return" type="date" />
+            </div>
+            <div class="field-group">
+              <label for="passengers">Passengers</label>
+              <select id="passengers" name="passengers">
+                <option value="1">1 traveler</option>
+                <option value="2">2 travelers</option>
+                <option value="3">3 travelers</option>
+                <option value="4">4 travelers</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="cabin">Cabin</label>
+              <select id="cabin" name="cabin">
+                <option value="economy">Economy</option>
+                <option value="premium">Premium Economy</option>
+                <option value="business">Business</option>
+                <option value="first">First</option>
+              </select>
+            </div>
+            <button type="submit" class="cta">Compare fares</button>
+          </form>
+          <aside class="filters" aria-label="Filter results">
+            <h3>Filters</h3>
+            <div class="field-group">
+              <label for="airline-filter">Airline</label>
+              <select id="airline-filter" name="airline"></select>
+            </div>
+            <div class="field-group">
+              <label for="stops-filter">Stops</label>
+              <select id="stops-filter" name="stops">
+                <option value="all">Any</option>
+                <option value="0">Nonstop</option>
+                <option value="1">1 stop</option>
+                <option value="2">2+ stops</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="sort-order">Sort by</label>
+              <select id="sort-order" name="sort">
+                <option value="price">Lowest price</option>
+                <option value="duration">Shortest duration</option>
+                <option value="takeoff">Earliest departure</option>
+              </select>
+            </div>
+          </aside>
+          <section id="results" class="results" aria-live="polite">
+            <h3>Results</h3>
+            <p class="empty-state">Search to see live pricing.</p>
+            <ul id="results-list" class="results-list"></ul>
+          </section>
+        </div>
+      </section>
+
+      <section id="features" class="features">
+        <div class="container">
+          <div class="section-heading">
+            <h2>Built for travelers and partners</h2>
+            <p>
+              FareRadar blends metasearch technology with direct supplier
+              connections to surface the absolute best fares.
+            </p>
+          </div>
+          <div class="feature-grid">
+            <article>
+              <h3>Live fare tracking</h3>
+              <p>
+                Monitor thousands of routes at once. Our scraper updates results
+                every few minutes so travelers always see fresh pricing.
+              </p>
+            </article>
+            <article>
+              <h3>Unified checkout</h3>
+              <p>
+                Customers complete the booking within FareRadar while we handle
+                partner attribution and commission splits automatically.
+              </p>
+            </article>
+            <article>
+              <h3>Smart insights</h3>
+              <p>
+                Price alerts, predictive forecasts and seat maps help travelers
+                choose confidently and drive higher conversion for partners.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta-banner">
+        <div class="container">
+          <div>
+            <h2>Want to list your inventory?</h2>
+            <p>Earn more on every ticket when travelers book through FareRadar.</p>
+          </div>
+          <a class="cta" href="mailto:partners@fareradar.com">Contact sales</a>
+        </div>
+      </section>
+
+      <section id="partners" class="partners">
+        <div class="container">
+          <div class="section-heading">
+            <h2>Trusted by leading travel brands</h2>
+            <p>
+              Airlines and online travel agencies work with FareRadar to reach a
+              global audience and drive incremental bookings.
+            </p>
+          </div>
+          <ul class="logo-cloud" aria-label="Partner logos">
+            <li>SkyJet Airways</li>
+            <li>Blue Horizon</li>
+            <li>Aurora Air</li>
+            <li>Orbitia</li>
+            <li>TransNational</li>
+            <li>SunTrail</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="testimonials">
+        <div class="container">
+          <article>
+            <blockquote>
+              “FareRadar helped us lift conversion by 32% month-over-month. Their
+              unified checkout takes care of the heavy lifting.”
+            </blockquote>
+            <p class="attribution">&mdash; Maria Patel, VP Revenue at Orbitia</p>
+          </article>
+          <article>
+            <blockquote>
+              “I saved $180 on my flight to Tokyo. The alerts and flexible date
+              view make FareRadar my go-to.”
+            </blockquote>
+            <p class="attribution">&mdash; Claire Hill, FareRadar traveler</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="faq" class="faq">
+        <div class="container">
+          <div class="section-heading">
+            <h2>Frequently asked questions</h2>
+            <p>Everything you need to know before partnering with FareRadar.</p>
+          </div>
+          <div class="faq-grid">
+            <details>
+              <summary>How does FareRadar find low fares?</summary>
+              <p>
+                We aggregate fares from airline APIs, GDS feeds, and OTA
+                partners. Our pricing engine analyzes availability, baggage
+                policies, and add-ons to surface the best total price.
+              </p>
+            </details>
+            <details>
+              <summary>Do travelers book on FareRadar?</summary>
+              <p>
+                Yes. We offer on-site booking so travelers complete checkout
+                without being redirected. Partners receive confirmed reservations
+                via API or email.
+              </p>
+            </details>
+            <details>
+              <summary>How is commission handled?</summary>
+              <p>
+                FareRadar retains an agreed percentage of the ticket value. We
+                settle commissions with partners on a monthly basis with detailed
+                reporting.
+              </p>
+            </details>
+            <details>
+              <summary>Can we integrate ancillary products?</summary>
+              <p>
+                Absolutely. Seat selection, baggage, insurance and hotel upsells
+                can all be merchandised during checkout.
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div>
+          <div class="brand">FareRadar</div>
+          <p>Metasearch built for modern travel brands.</p>
+        </div>
+        <div>
+          <h3>Company</h3>
+          <ul>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Press</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Resources</h3>
+          <ul>
+            <li><a href="#">Partner docs</a></li>
+            <li><a href="#">Affiliate program</a></li>
+            <li><a href="#">Status</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Legal</h3>
+          <ul>
+            <li><a href="#">Terms</a></li>
+            <li><a href="#">Privacy</a></li>
+            <li><a href="#">Cookie policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <p class="footer-note">
+        &copy; <span id="copyright-year"></span> FareRadar. All rights reserved.
+      </p>
+    </footer>
+
+    <script src="./assets/app.js" type="module"></script>
+  </body>
+</html>
