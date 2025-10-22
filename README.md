@@ -8,7 +8,8 @@ modern CSS and a sprinkle of vanilla JavaScript.
 ## Features
 
 - Hero section with messaging for travelers and potential partners
-- Search form that filters a sample dataset of flights loaded from JSON
+- Search form that filters a sample dataset of UK-departure flights priced in
+  GBP and loaded from JSON
 - Dynamic fare cards with filters for airline, number of stops and sort order
 - Mock booking and share interactions to demonstrate the on-site checkout flow
 - Marketing content (features, partners, testimonials, FAQ) tailored to a travel
